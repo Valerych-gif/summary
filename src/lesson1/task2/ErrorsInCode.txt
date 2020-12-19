@@ -1,0 +1,75 @@
+    interface Moveable {
+        void move();
+    }
+
+    interface Stopable {
+        void stop();
+    }
+
+    abstract class Car {
+        public Engine engine; <-- Это поле должно быть приватным
+        private String color;
+        private String name;
+
+        protected void start() { <-- Метод надо сделать публичным, чтобы его можно было выполнить в клиентском коде
+            System.out.println("Car starting");
+        }
+
+        abstract void open();
+
+        public Engine getEngine() {
+            return engine;
+        }
+
+        public void setEngine(Engine engine) {
+            this.engine = engine;
+        }
+
+        public String getColor() {
+            return color;
+        }
+
+        public void setColor(String color) {
+            this.color = color;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+    }
+}
+
+class LightWeightCar extends Car implements Moveable{
+
+    @Override
+    void open() { <-- Метод надо сделать публичным, чтобы его можно было выполнить в клиентском коде не только в этом пакете
+        System.out.println("Car is open");
+    }
+
+    @Override
+    public void move() {
+        System.out.println("Car is moving");
+    }
+
+}
+
+class Lorry extends Car, Moveable, Stopable{ <-- Интерфейсы надо имплементировать, а не экстендить
+
+    public void move(){
+        System.out.println("Car is moving");
+    }
+
+    public void stop(){
+        System.out.println("Car is stop");
+    }
+    <-- Не хватает реализации метода open()
+}
+
+Оптимизации:
+1. Сделать Car implements Moveable и убрать имплементацию у наследников. (Возможно это стоит повторить и для Stopable, но это неточно)
+2. Вынести повторяющийся код из наследников в родителя
+3. Возможно стоит реализовать open() в Car, если он повторяется для разных типов машин
