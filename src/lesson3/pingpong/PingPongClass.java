@@ -1,4 +1,4 @@
-package lesson3;
+package lesson3.pingpong;
 
 public class PingPongClass {
     enum State{
@@ -6,7 +6,7 @@ public class PingPongClass {
         PONG
     }
     private State state;
-    private static int counter;
+    private int counter;
 
     synchronized void ping(){
         state = State.PING;
