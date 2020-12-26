@@ -5,12 +5,21 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class Counter {
     private int counter;
-    private Lock lock = new ReentrantLock();
+    private final Lock lock;
+
+    public Counter () {
+        this.lock = new ReentrantLock();
+    }
 
     public void increaseCounter() {
-        lock.lock();
-        counter++;
-        lock.unlock();
+        try {
+            lock.lock();
+            counter++;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            lock.unlock();
+        }
     }
 
     public int getCounter() {
