@@ -27,10 +27,95 @@ CREATE TABLE `tickets_tbl` (
   CONSTRAINT `session_id_fk` FOREIGN KEY (`session_id`) REFERENCES `session_tbl` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
--- Запрос всех пересекающихся сеансов --
+-- Запрос всех пересекающихся сеансов (Задача 1)
+-- Ошибки в расписании (фильмы накладываются друг на друга), отсортированные по возрастанию времени.
+-- Выводить надо колонки «фильм 1», «время начала», «длительность», «фильм 2», «время начала», «длительность»;
 
 SELECT m1.title_fld, s1.time_fld, m1.duration_fld, m2.title_fld, s2.time_fld, m2.duration_fld
 FROM session_tbl AS s1 JOIN session_tbl AS s2 JOIN movie_tbl AS m1 JOIN movie_tbl AS m2
 WHERE s1.movie_id = m1.id AND s2.movie_id = m2.id AND s1.time_fld < (s2.time_fld+m2.duration_fld) AND s1.time_fld > s2.time_fld
 ORDER BY m1.duration_fld;
 
+-- Подсчет показателей каждого сеанса (задача №3)
+-- Список фильмов, для каждого — с указанием общего числа посетителей за все время,
+-- среднего числа зрителей за сеанс и общей суммы сборов по каждому фильму (отсортировать по убыванию прибыли).
+-- Внизу таблицы должна быть строчка «итого», содержащая данные по всем фильмам сразу;
+
+SELECT
+	s.id AS `id`,
+    m.title_fld AS `Movie's title`,
+    sum(t.quantity_fld) AS `quantity of visitors`,
+    avg(t.quantity_fld) AS `average of visitors`,
+    sum(s.price_fld*t.quantity_fld) AS `Income`
+FROM
+	movie_tbl AS m
+    JOIN session_tbl AS s
+    JOIN tickets_tbl AS t
+ON s.movie_id = m.id AND t.session_id = s.id
+GROUP BY m.title_fld WITH ROLLUP
+ORDER BY Income DESC; -- Эта строка выносит итого наверх таблицы, т.к. у нее самая большая прибыль
+
+-- Статистика по временным интервалам (задача №4)
+-- Число посетителей и кассовые сборы, сгруппированные по времени начала фильма:
+-- с 9 до 15, с 15 до 18, с 18 до 21, с 21 до 00:00 (сколько посетителей пришло с 9 до 15 часов и т.д.).
+CREATE TEMPORARY TABLE table1
+SELECT
+	"From 9:00 to 15:00" AS inter,
+	sum(t.quantity_fld) AS visitors,
+    sum(t.quantity_fld*s.price_fld) AS income
+FROM
+	tickets_tbl AS t
+JOIN
+	session_tbl AS s
+ON
+	t.session_id = s.id
+WHERE
+	s.time_fld > "09:00:00" AND s.time_fld < "15:00:00";
+
+CREATE TEMPORARY TABLE table2
+SELECT
+	"From 15:00 to 18:00" AS inter,
+	sum(t.quantity_fld) AS visitors2,
+    sum(t.quantity_fld*s.price_fld) AS income2
+FROM
+	tickets_tbl AS t
+JOIN
+	session_tbl AS s
+ON
+	t.session_id = s.id
+WHERE
+	s.time_fld > "15:00:00" AND s.time_fld < "18:00:00";
+
+CREATE TEMPORARY TABLE table3
+SELECT
+	"From 18:00 to 21:00" AS inter,
+	sum(t.quantity_fld) AS visitors3,
+    sum(t.quantity_fld*s.price_fld) AS income3
+FROM
+	tickets_tbl AS t
+JOIN
+	session_tbl AS s
+ON
+	t.session_id = s.id
+WHERE
+	s.time_fld > "18:00:00" AND s.time_fld < "21:00:00";
+
+CREATE TEMPORARY TABLE table4
+SELECT
+	"From 21:00 to 00:00" AS inter,
+	sum(t.quantity_fld) AS visitors4,
+    sum(t.quantity_fld*s.price_fld) AS income4
+FROM
+	tickets_tbl AS t
+JOIN
+	session_tbl AS s
+ON
+	t.session_id = s.id
+WHERE
+	s.time_fld > "21:00:00" AND s.time_fld < "24:00:00";
+
+SELECT * FROM table1 UNION SELECT * FROM table2 UNION SELECT * FROM table3 UNION SELECT * FROM table4 group by inter;
+DROP TABLE IF EXISTS table1;
+DROP TABLE IF EXISTS table2;
+DROP TABLE IF EXISTS table3;
+DROP TABLE IF EXISTS table4;
