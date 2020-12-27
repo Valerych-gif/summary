@@ -1,0 +1,36 @@
+-- Создание таблиц --
+
+CREATE TABLE `movie_tbl` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `title_fld` varchar(255) NOT NULL,
+  `duration_fld` int NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+CREATE TABLE `session_tbl` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `movie_id` int unsigned NOT NULL,
+  `time_fld` time NOT NULL,
+  `date_fld` date NOT NULL,
+  `price_fld` int unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `movie_id_fk_idx` (`movie_id`),
+  CONSTRAINT `movie_id_fk` FOREIGN KEY (`movie_id`) REFERENCES `movie_tbl` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+CREATE TABLE `tickets_tbl` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `session_id` int unsigned NOT NULL,
+  `quantity_fld` int unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `session_id_fk_idx` (`session_id`),
+  CONSTRAINT `session_id_fk` FOREIGN KEY (`session_id`) REFERENCES `session_tbl` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+-- Запрос всех пересекающихся сеансов --
+
+SELECT m1.title_fld, s1.time_fld, m1.duration_fld, m2.title_fld, s2.time_fld, m2.duration_fld
+FROM session_tbl AS s1 JOIN session_tbl AS s2 JOIN movie_tbl AS m1 JOIN movie_tbl AS m2
+WHERE s1.movie_id = m1.id AND s2.movie_id = m2.id AND s1.time_fld < (s2.time_fld+m2.duration_fld) AND s1.time_fld > s2.time_fld
+ORDER BY m1.duration_fld;
+
