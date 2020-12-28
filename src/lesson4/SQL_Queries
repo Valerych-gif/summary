@@ -76,7 +76,7 @@ ON
 WHERE
 	time(s2.time_fld - (s1.time_fld+m1.duration_fld))>"00:30:00"
 AND
-	(s2.id-s1.id)=1
+	(s2.id-s1.id)=1 -- Это работает только если id идут подряд. Другого способа работать с соседними сеансами я не придумал
 GROUP BY m1.title_fld
 ORDER BY `Pause between sessions` DESC;
 
