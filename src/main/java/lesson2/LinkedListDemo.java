@@ -1,6 +1,6 @@
 package lesson2;
 
-public class LinkedListDemo<E> implements ListDemo<E>{
+public class LinkedListDemo<E> implements ListDemo<E> {
 
     class Node<V> {
         V value;
