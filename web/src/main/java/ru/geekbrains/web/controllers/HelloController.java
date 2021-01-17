@@ -1,6 +1,7 @@
 package ru.geekbrains.web.controllers;
 
 import org.springframework.web.bind.annotation.*;
+import ru.geekbrains.web.entities.User;
 
 @RestController
 @RequestMapping("/hello")
@@ -12,8 +13,8 @@ public class HelloController {
     }
 
     @PostMapping
-    public String createUser(@RequestParam(name = "username") String username, @RequestParam(name = "password") String password){
-        return "New user " + " with password \"" + password + "\" was created";
+    public String createUser(@RequestBody(required = false) User user){
+        return "New user " + user.getUsername() + " with password \"" + user.getPassword() + "\" was created\n";
     }
 
 }
